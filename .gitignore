@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+dist/
+build/
+
+# Generated research artifacts stay local; manifests and keep-files remain versioned.
+data/**
+!data/**/
+!data/**/.gitkeep
+models/checkpoints/**
+!models/checkpoints/.gitkeep
+models/calibration/**
+!models/calibration/.gitkeep
+reports/**
+!reports/.gitkeep
+!reports/README.md
+

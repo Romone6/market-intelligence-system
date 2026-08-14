@@ -1,0 +1,13 @@
+version: "0.1"
+name: us_liquid_equities
+country: US
+security_types:
+  - common_stock
+target_size:
+  minimum: 500
+  maximum: 1000
+frequency: daily
+history_start: "2015-01-01"
+point_in_time_required: true
+prototype_survivorship_biased: true
+

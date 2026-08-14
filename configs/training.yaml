@@ -1,0 +1,18 @@
+version: "0.1"
+seed: 42
+mode: research
+horizons_trading_days:
+  - 1
+  - 5
+  - 20
+split_policy:
+  type: time_based
+  train_end: "2022-12-31"
+  validation_end: "2023-12-31"
+  test_end: "2024-12-31"
+  final_holdout_start: "2025-01-01"
+execution:
+  broker_enabled: false
+  live_trading_enabled: false
+  paper_only: true
+

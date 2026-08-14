@@ -1,0 +1,34 @@
+version: "0.1"
+families:
+  earnings:
+    - revenue_beat
+    - revenue_miss
+    - eps_beat
+    - eps_miss
+    - margin_change
+  guidance:
+    - raised
+    - lowered
+    - initiated
+    - reaffirmed
+    - withdrawn
+  contracts:
+    - awarded
+    - expanded
+    - lost
+    - cancelled
+  capital_allocation:
+    - buyback
+    - dividend_change
+    - debt_issuance
+    - equity_issuance
+  management:
+    - ceo_departure
+    - ceo_appointment
+    - cfo_departure
+    - cfo_appointment
+  corporate_action:
+    - acquisition
+    - divestiture
+    - restructuring
+
