@@ -9,6 +9,7 @@ from .security_master import (
     SecurityRecord,
     SecurityResolution,
     UniverseMembershipRecord,
+    normalize_cik,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "SecurityRecord",
     "SecurityResolution",
     "UniverseMembershipRecord",
+    "normalize_cik",
 ]

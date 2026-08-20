@@ -10,7 +10,7 @@ from pydantic import Field, field_validator, model_validator
 from financial_event_model.contracts import Contract
 
 
-def _normalize_cik(value: str) -> str:
+def normalize_cik(value: str) -> str:
     stripped = value.strip()
     if not stripped.isdigit() or len(stripped) > 10:
         raise ValueError("CIK must contain at most 10 digits")
@@ -43,7 +43,7 @@ class EntityRecord(DatedRecord):
     @field_validator("cik", mode="before")
     @classmethod
     def normalize_cik(cls, value: str) -> str:
-        return _normalize_cik(value)
+        return normalize_cik(value)
 
 
 class SecurityRecord(DatedRecord):
@@ -67,7 +67,7 @@ class IdentifierRecord(DatedRecord):
     def normalize_identifier(self) -> Self:
         self.identifier_type = self.identifier_type.casefold()
         if self.identifier_type == "cik":
-            self.identifier_value = _normalize_cik(self.identifier_value)
+            self.identifier_value = normalize_cik(self.identifier_value)
         return self
 
 
@@ -238,7 +238,7 @@ class SecurityMaster:
         filing_date: date,
         universe_name: str,
     ) -> FilingResolution | None:
-        normalized_cik = _normalize_cik(cik)
+        normalized_cik = normalize_cik(cik)
         as_of = filing_date.isoformat()
         entity = self._resolve_entity(normalized_cik, as_of)
         if entity is None:

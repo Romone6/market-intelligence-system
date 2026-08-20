@@ -4,7 +4,7 @@ An independently trained, point-in-time financial-event research system built fr
 
 ## Status
 
-Stage 0 foundation and the Stage 1 point-in-time security-master engine are implemented. Historical universe population remains open. Research and paper operation only; broker and live-trading paths do not exist.
+Stage 0 foundation, the Stage 1 point-in-time security-master engine, and the Stage 2 SEC collector engine are implemented. Historical-universe population and the live 50-company SEC acceptance run remain open. Research and paper operation only; broker and live-trading paths do not exist.
 
 ## Install
 
@@ -51,4 +51,4 @@ Generated data, models, and reports are ignored by Git. Commit schemas, configs,
 
 ## Canonical references
 
-Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). The current identity-system boundary is recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md).
+Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md) and [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md).

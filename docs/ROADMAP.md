@@ -6,7 +6,7 @@ The source specification is implemented as independently verifiable stages. Work
 |---:|---|---|
 | 0 | Repository, schemas, configuration, experiment ledger | Install/test commands pass; configs and outputs are versioned |
 | 1 | Point-in-time security master | Schema/query verified with fixtures; authoritative historical population and coverage audit remain open |
-| 2 | SEC ingestion | Reproducible 50-company manifest preserves filings, exhibits, amendments, failures, and hashes |
+| 2 | SEC ingestion | Collector engine verified with fixtures; live 50-company manifest is gated on a declared SEC identity |
 | 3 | Normalization and evidence mapping | 100 representative documents remain traceable to raw offsets and parsing failures are flagged |
 | 4 | Timestamp discipline and historical knowledge query | 100 sampled events have zero unexplained pre-`tradable_at` violations |
 | 5 | Market data and outcome labels | 100 sampled event returns reproduce within tolerance from the correct starting point |

@@ -1,0 +1,22 @@
+version: "0.1"
+collector_version: sec-collector-v0.1
+user_agent_env: SEC_USER_AGENT
+max_requests_per_second: 8
+timeout_seconds: 30
+max_retries: 3
+retry_http_statuses:
+  - 429
+  - 500
+  - 502
+  - 503
+  - 504
+forms:
+  - 8-K
+  - 8-K/A
+  - 10-Q
+  - 10-Q/A
+history_start: "2015-01-01"
+endpoints:
+  submissions: https://data.sec.gov/submissions
+  companyfacts: https://data.sec.gov/api/xbrl/companyfacts
+  archives: https://www.sec.gov/Archives/edgar/data
