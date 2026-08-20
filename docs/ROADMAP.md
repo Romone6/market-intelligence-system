@@ -11,7 +11,7 @@ The source specification is implemented as independently verifiable stages. Work
 | 4 | Timestamp discipline and historical knowledge query | 100 filing-evidence records pass exact-boundary and timestamp-order audits; downstream feature replay remains a continuous gate |
 | 5 | Market data and outcome labels | Engine and 100-fixture reproduction pass; authenticated consolidated bars and the 100-real-filing audit remain open |
 | 6 | Ontology v0.1 and annotation guide | Schema and 100-item fixture audit pass; two-human 100-real-event agreement study remains open |
-| 7 | Annotation application and gold set | Frozen evaluation set, agreement metrics, class reports, and leakage controls exist |
+| 7 | Annotation application and gold set | Local app and frozen-release controls are fixture-verified; the real 500–1,000-event human gold release remains open |
 | 8 | Non-neural baselines | Frozen baselines run on the same periods as every later model |
 | 9 | Event extraction model | Beats baselines, identifies evidence, calibrates probabilities, and survives robustness splits |
 | 10 | Event embeddings and analogue retrieval | Retrieved history is economically comparable and strictly prior to the query event |

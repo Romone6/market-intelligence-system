@@ -1,0 +1,16 @@
+version: "0.1"
+host: 127.0.0.1
+port: 8765
+max_request_bytes: 262144
+evaluation_fraction: 0.20
+split_seed: financial-event-model-stage-7-v1
+rare_label_threshold: 20
+
+rounds:
+  calibration_documents: 100
+  gold_minimum_events: 500
+  gold_maximum_events: 1000
+  minimum_double_label_fraction: 0.20
+  target_double_label_fraction: 0.30
+  expansion_minimum_events: 2000
+  expansion_maximum_events: 5000
