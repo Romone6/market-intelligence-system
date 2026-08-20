@@ -70,11 +70,24 @@ result = SecIngestor(collector).collect_company(
 
 Raw paths are derived from SHA-256 content hashes. A repeated URL/content pair therefore cannot create a duplicate raw object, while changed content receives a new path and manifest row.
 
-## Evidence and open gate
+## Acceptance evidence
 
 Automated fixtures verify request headers, immutable storage, retry logging, resumption, content-change detection, host/identity rejection, current and historical metadata formats, amendment preservation, archive URL construction, SGML document linkage, and a resumed one-company collection flow.
 
-No live SEC request was made because `SEC_USER_AGENT` was absent on 2026-08-20. Stage 2's real-data acceptance gate remains open until a reviewed 50-company/date manifest is collected and audited for:
+The frozen technical cohort in `configs/sec_acceptance.json` contains 50 unique CIKs resolved through the SEC's official ticker file. It covers 2024-01-01 through 2024-03-31 and is explicitly not a point-in-time historical universe.
+
+The live run on 2026-08-20 produced:
+
+- 50 completed companies and 50 Company Facts payloads;
+- 161 relevant filings, including 7 amendments;
+- 483 primary/complete/index source objects;
+- 3,683 exact embedded document blocks, including 877 exhibits;
+- 504 new network requests with zero failures after the archive-URL correction;
+- zero duplicate document identity groups.
+
+The immediate resume audit made zero network requests, reused all 483 filing source objects, and found no missing accession roles or duplicate document groups. Generated manifests and audit JSON remain under ignored `data/raw/`; the reproducible cohort and date contract is committed.
+
+The audit checks:
 
 - every expected 8-K, 8-K/A, 10-Q, and 10-Q/A accession;
 - primary/complete/index source presence;
@@ -84,4 +97,4 @@ No live SEC request was made because `SEC_USER_AGENT` was absent on 2026-08-20. 
 - explicit failures and resumability;
 - reproducibility from the persisted request manifest.
 
-Fixture success proves the collector engine, not historical coverage or dataset completeness.
+This proves the Stage 2 technical ingestion boundary for the frozen cohort. It does not prove historical-universe correctness, complete 2015-present coverage, or normalized-text quality.

@@ -1,0 +1,15 @@
+{
+  "cohort_name": "sec-stage-2-technical-acceptance-v1",
+  "selection_basis": "Current liquid US issuers selected only for collector acceptance; not a point-in-time research universe.",
+  "start": "2024-01-01",
+  "end": "2024-03-31",
+  "forms": ["8-K", "8-K/A", "10-Q", "10-Q/A"],
+  "include_companyfacts": true,
+  "tickers": [
+    "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "BRK-B", "AVGO", "TSLA", "JPM",
+    "WMT", "LLY", "V", "MA", "XOM", "UNH", "COST", "ORCL", "HD", "PG",
+    "NFLX", "JNJ", "ABBV", "BAC", "KO", "CRM", "CVX", "MRK", "AMD", "CSCO",
+    "PEP", "TMO", "ADBE", "MCD", "ACN", "IBM", "GE", "CAT", "DIS", "INTC",
+    "QCOM", "AMGN", "TXN", "HON", "PM", "AMAT", "NOW", "GS", "BKNG", "SPGI"
+  ]
+}

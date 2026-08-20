@@ -69,8 +69,7 @@ class FilingReference(Contract):
 
     @property
     def complete_submission_url(self) -> str:
-        accession = self.accession_number.replace("-", "")
-        return f"{self.archive_directory_url}/{accession}.txt"
+        return f"{self.archive_directory_url}/{self.accession_number}.txt"
 
     @property
     def filing_index_url(self) -> str:
@@ -154,7 +153,12 @@ class SecCollector:
         self._validate_url(url)
         previous = self._latest_success(url)
         if not force and previous is not None and Path(previous["local_path"]).is_file():
-            return self._result_from_row(previous, cached=True)
+            return self._result_from_row(
+                previous,
+                cached=True,
+                accession_number=accession_number,
+                document_role=document_role,
+            )
 
         for attempt in range(self.max_retries + 1):
             self._throttle()
@@ -435,7 +439,14 @@ class SecCollector:
         temporary.replace(destination)
         return destination
 
-    def _result_from_row(self, row: sqlite3.Row, *, cached: bool) -> SecFetchResult:
+    def _result_from_row(
+        self,
+        row: sqlite3.Row,
+        *,
+        cached: bool,
+        accession_number: str | None = None,
+        document_role: str | None = None,
+    ) -> SecFetchResult:
         return SecFetchResult(
             request_id=row["request_id"],
             request_url=row["request_url"],
@@ -447,8 +458,8 @@ class SecCollector:
             content_hash=row["content_hash"],
             collector_version=row["collector_version"],
             local_path=Path(row["local_path"]),
-            accession_number=row["accession_number"],
-            document_role=row["document_role"],
+            accession_number=accession_number or row["accession_number"],
+            document_role=document_role or row["document_role"],
             content_changed=bool(row["content_changed"]),
             cached=cached,
         )

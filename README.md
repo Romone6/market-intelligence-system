@@ -4,7 +4,7 @@ An independently trained, point-in-time financial-event research system built fr
 
 ## Status
 
-Stage 0 foundation, the Stage 1 point-in-time security-master engine, and the Stage 2 SEC collector engine are implemented. Historical-universe population and the live 50-company SEC acceptance run remain open. Research and paper operation only; broker and live-trading paths do not exist.
+Stage 0 foundation, the Stage 1 point-in-time security-master engine, and the Stage 2 SEC ingestion pipeline are implemented. The Stage 2 live 50-company acceptance and resume audits pass; authoritative historical-universe population remains open. Research and paper operation only; broker and live-trading paths do not exist.
 
 ## Install
 

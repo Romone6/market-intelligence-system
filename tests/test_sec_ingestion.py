@@ -162,6 +162,26 @@ def test_collector_resumes_and_detects_forced_content_changes(tmp_path) -> None:
     assert opener.call_count == 2
 
 
+def test_cached_fetch_uses_the_current_accession_and_role(tmp_path) -> None:
+    url = "https://www.sec.gov/Archives/edgar/data/320193/submission.txt"
+    collector = _collector(
+        tmp_path,
+        FakeOpener(FakeResponse(b"filing", {"Content-Type": "text/plain"})),
+    )
+    original = collector.fetch(url, document_role="diagnostic")
+
+    cached = collector.fetch(
+        url,
+        accession_number="0000320193-24-000001",
+        document_role="complete_submission",
+    )
+
+    assert cached.request_id == original.request_id
+    assert cached.cached is True
+    assert cached.accession_number == "0000320193-24-000001"
+    assert cached.document_role == "complete_submission"
+
+
 def test_collector_records_and_retries_temporary_http_failures(tmp_path) -> None:
     url = "https://www.sec.gov/Archives/edgar/data/320193/example.txt"
     headers = Message()
@@ -270,7 +290,7 @@ def test_submission_discovery_preserves_amendments_and_history_files() -> None:
         "/320193/000032019324000001/first.htm"
     )
     assert filings[0].complete_submission_url.endswith(
-        "/320193/000032019324000001/000032019324000001.txt"
+        "/320193/000032019324000001/0000320193-24-000001.txt"
     )
     assert history == ("CIK0000320193-submissions-001.json",)
 
