@@ -4,7 +4,7 @@ An independently trained, point-in-time financial-event research system built fr
 
 ## Status
 
-Stage 0 foundation, the Stage 1 point-in-time security-master engine, the Stage 2 SEC ingestion pipeline, and the Stage 3 traceable normalization pipeline are implemented. The Stage 2 live 50-company audit and Stage 3 100-document audit pass; authoritative historical-universe population remains open. Research and paper operation only; broker and live-trading paths do not exist.
+Stages 0–4 are implemented through the timestamp-disciplined historical knowledge layer. The Stage 2 live 50-company audit, Stage 3 100-document normalization audit, and Stage 4 100-record exact-boundary audit pass; authoritative historical-universe population and downstream feature replay remain open. Research and paper operation only; broker and live-trading paths do not exist.
 
 ## Install
 
@@ -51,4 +51,4 @@ Generated data, models, and reports are ignored by Git. Commit schemas, configs,
 
 ## Canonical references
 
-Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md), [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md), and [Stage 3: Normalization and Evidence Mapping](docs/STAGE_3_NORMALIZATION.md).
+Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md), [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md), [Stage 3: Normalization and Evidence Mapping](docs/STAGE_3_NORMALIZATION.md), and [Stage 4: Timestamp Discipline and Historical Knowledge](docs/STAGE_4_TIMESTAMP_DISCIPLINE.md).

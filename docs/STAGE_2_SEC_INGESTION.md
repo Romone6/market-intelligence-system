@@ -66,7 +66,7 @@ result = SecIngestor(collector).collect_company(
 
 ## Provenance manifest
 
-`sec_requests` records the URL, request and receive times, status, content type, source last-modified value, content hash, collector version, local path, accession, role, change flag, and error. `sec_documents` links each exact SGML document block to its accession and the complete-submission request that contained it.
+`sec_requests` records the URL, request and receive times, status, content type, source last-modified value, content hash, collector version, local path, accession, role, change flag, and error. `sec_documents` links each exact SGML document block to its accession and the complete-submission request that contained it. The additive Stage 4 `sec_filings` migration preserves the SEC acceptance instant and its submissions-metadata observation for historical availability queries.
 
 Raw paths are derived from SHA-256 content hashes. A repeated URL/content pair therefore cannot create a duplicate raw object, while changed content receives a new path and manifest row.
 

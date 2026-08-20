@@ -1,0 +1,9 @@
+version: "0.1"
+policy_version: sec-daily-v0.1
+exchange_calendar: XNYS
+market_data_interval: 1d
+processing_latency_minutes: 15
+source_manifest: data/raw/sec_manifest.sqlite3
+normalization_manifest: data/normalized/normalization_manifest.sqlite3
+knowledge_store: data/events/knowledge.sqlite3
+acceptance_sample_size: 100

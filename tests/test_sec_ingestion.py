@@ -4,6 +4,7 @@ import sqlite3
 from datetime import date
 from email.message import Message
 from io import BytesIO
+from pathlib import Path
 from urllib.error import HTTPError
 
 import pytest
@@ -421,3 +422,41 @@ def test_ingestor_collects_and_resumes_one_company_with_linked_documents(tmp_pat
         ("8-K", "0000320193-24-000001", complete_request_id),
         ("EX-99.1", "0000320193-24-000001", complete_request_id),
     ]
+    with sqlite3.connect(tmp_path / "sec_manifest.sqlite3") as connection:
+        filing = connection.execute(
+            """
+            SELECT cik, acceptance_at, form, is_amendment, metadata_request_id
+            FROM sec_filings
+            """
+        ).fetchone()
+    assert filing == (
+        "0000320193",
+        "2024-01-02T12:00:00+00:00",
+        "8-K",
+        0,
+        result.submissions.request_id,
+    )
+
+
+def test_sec_filing_migration_is_additive_and_reversible(tmp_path) -> None:
+    collector = _collector(tmp_path, FakeOpener())
+    down = (
+        Path(__file__).parents[1]
+        / "src"
+        / "financial_event_model"
+        / "ingestion"
+        / "migrations"
+        / "0002_sec_filings.down.sql"
+    ).read_text(encoding="utf-8")
+
+    with collector._connect() as connection:
+        versions = connection.execute(
+            "SELECT version FROM sec_schema_migrations ORDER BY version"
+        ).fetchall()
+        connection.executescript(down)
+        table = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='sec_filings'"
+        ).fetchone()
+
+    assert [row[0] for row in versions] == [1, 2]
+    assert table is None

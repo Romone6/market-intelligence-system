@@ -329,6 +329,56 @@ class SecCollector:
             )
         return tuple(stored)
 
+    def store_filings(
+        self,
+        source: SecFetchResult,
+        filings: tuple[FilingReference, ...],
+    ) -> None:
+        created_at = datetime.now(timezone.utc).isoformat()
+        with self._connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO sec_filings (
+                    accession_number, cik, filing_date, acceptance_at, form,
+                    primary_document, items_json, is_amendment,
+                    metadata_request_id, first_observed_at, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (accession_number) DO UPDATE SET
+                    cik = excluded.cik,
+                    filing_date = excluded.filing_date,
+                    acceptance_at = excluded.acceptance_at,
+                    form = excluded.form,
+                    primary_document = excluded.primary_document,
+                    items_json = excluded.items_json,
+                    is_amendment = excluded.is_amendment,
+                    metadata_request_id = excluded.metadata_request_id,
+                    first_observed_at = min(
+                        sec_filings.first_observed_at,
+                        excluded.first_observed_at
+                    )
+                """,
+                [
+                    (
+                        filing.accession_number,
+                        filing.cik,
+                        filing.filing_date.isoformat(),
+                        (
+                            filing.acceptance_at.isoformat()
+                            if filing.acceptance_at is not None
+                            else None
+                        ),
+                        filing.form,
+                        filing.primary_document,
+                        json.dumps(filing.items),
+                        int(filing.is_amendment),
+                        source.request_id,
+                        source.response_received_at.isoformat(),
+                        created_at,
+                    )
+                    for filing in filings
+                ],
+            )
+
     def _migrate(self) -> None:
         with self._connect() as connection:
             connection.execute(
@@ -339,14 +389,17 @@ class SecCollector:
                 )
                 """
             )
-            applied = connection.execute(
-                "SELECT 1 FROM sec_schema_migrations WHERE version = 1"
-            ).fetchone()
-            if applied is None:
-                migration = (
-                    Path(__file__).with_name("migrations") / "0001_sec_manifest.sql"
-                ).read_text(encoding="utf-8")
-                connection.executescript(migration)
+            applied = {
+                int(row[0])
+                for row in connection.execute(
+                    "SELECT version FROM sec_schema_migrations"
+                ).fetchall()
+            }
+            migration_root = Path(__file__).with_name("migrations")
+            for path in sorted(migration_root.glob("[0-9][0-9][0-9][0-9]_*.sql")):
+                version = int(path.name[:4])
+                if version not in applied:
+                    connection.executescript(path.read_text(encoding="utf-8"))
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.manifest_path)
@@ -498,11 +551,13 @@ class SecIngestor:
             document_role="submissions",
         )
         root_payload = _load_json(submissions.local_path)
+        current_filings = parse_submission_filings(
+            root_payload, normalized_cik, start, end, forms
+        )
+        self.collector.store_filings(submissions, current_filings)
         filing_by_accession = {
             filing.accession_number: filing
-            for filing in parse_submission_filings(
-                root_payload, normalized_cik, start, end, forms
-            )
+            for filing in current_filings
         }
 
         historical_results = []
@@ -512,9 +567,11 @@ class SecIngestor:
                 document_role="historical_submissions",
             )
             historical_results.append(result)
-            for filing in parse_submission_filings(
+            historical_filings = parse_submission_filings(
                 _load_json(result.local_path), normalized_cik, start, end, forms
-            ):
+            )
+            self.collector.store_filings(result, historical_filings)
+            for filing in historical_filings:
                 filing_by_accession.setdefault(filing.accession_number, filing)
 
         filings = tuple(
