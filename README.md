@@ -4,7 +4,7 @@ An independently trained, point-in-time financial-event research system built fr
 
 ## Status
 
-Stage 0 foundation, the Stage 1 point-in-time security-master engine, and the Stage 2 SEC ingestion pipeline are implemented. The Stage 2 live 50-company acceptance and resume audits pass; authoritative historical-universe population remains open. Research and paper operation only; broker and live-trading paths do not exist.
+Stage 0 foundation, the Stage 1 point-in-time security-master engine, the Stage 2 SEC ingestion pipeline, and the Stage 3 traceable normalization pipeline are implemented. The Stage 2 live 50-company audit and Stage 3 100-document audit pass; authoritative historical-universe population remains open. Research and paper operation only; broker and live-trading paths do not exist.
 
 ## Install
 
@@ -51,4 +51,4 @@ Generated data, models, and reports are ignored by Git. Commit schemas, configs,
 
 ## Canonical references
 
-Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md) and [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md).
+Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md), [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md), and [Stage 3: Normalization and Evidence Mapping](docs/STAGE_3_NORMALIZATION.md).

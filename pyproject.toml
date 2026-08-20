@@ -23,6 +23,7 @@ where = ["src"]
 financial_event_model = [
     "identifiers/migrations/*.sql",
     "ingestion/migrations/*.sql",
+    "normalization/migrations/*.sql",
 ]
 
 [tool.pytest.ini_options]

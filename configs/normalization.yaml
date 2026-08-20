@@ -1,0 +1,7 @@
+version: "0.1"
+parser_version: sec-html-v0.1
+acceptance_limit: 100
+minimum_quality: 0.50
+source_manifest: data/raw/sec_manifest.sqlite3
+output_root: data/normalized
+normalization_manifest: data/normalized/normalization_manifest.sqlite3

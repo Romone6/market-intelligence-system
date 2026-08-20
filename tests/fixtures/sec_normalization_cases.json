@@ -1,0 +1,57 @@
+[
+  {
+    "name": "ordinary_filing",
+    "raw": "<html><body><h2>Item 1.01 Material Agreement</h2><p>The company entered an agreement.</p></body></html>",
+    "document_type": "8-K",
+    "expected_heading": "Item 1.01 Material Agreement",
+    "expected_text": "entered an agreement"
+  },
+  {
+    "name": "malformed_html",
+    "raw": "<html><body><h2>Item 2.02 Results<p>Revenue increased",
+    "document_type": "8-K",
+    "expected_warning": "malformed_html",
+    "expected_text": "Revenue increased"
+  },
+  {
+    "name": "inline_xbrl",
+    "raw": "<html><body><h2>Item 2.02 Results</h2><p>Revenue was <ix:nonfraction>100</ix:nonfraction> million.</p></body></html>",
+    "document_type": "8-K",
+    "expected_text": "Revenue was 100 million."
+  },
+  {
+    "name": "table",
+    "raw": "<html><body><table><tr><th>Metric</th><th>Value</th></tr><tr><td>Revenue</td><td>100</td></tr></table></body></html>",
+    "document_type": "10-Q",
+    "expected_table_count": 1,
+    "expected_text": "Metric\tValue\nRevenue\t100"
+  },
+  {
+    "name": "amended_filing",
+    "raw": "<html><body><h2>Item 4.01 Amendment</h2><p>This filing amends the prior report.</p></body></html>",
+    "document_type": "8-K/A",
+    "expected_heading": "Item 4.01 Amendment",
+    "expected_text": "amends the prior report"
+  },
+  {
+    "name": "exhibit",
+    "raw": "<html><body><h1>Press Release</h1><p>The company announced results.</p></body></html>",
+    "document_type": "EX-99.1",
+    "expected_is_exhibit": true,
+    "expected_text": "announced results"
+  },
+  {
+    "name": "very_long_filing",
+    "raw": "<html><body><h2>Item 7.01 Disclosure</h2><p>Long filing evidence.</p></body></html>",
+    "document_type": "8-K",
+    "repeat_paragraph": 2000,
+    "expected_text": "Long filing evidence."
+  },
+  {
+    "name": "missing_heading",
+    "raw": "<html><body><p>The company disclosed a material development.</p></body></html>",
+    "document_type": "8-K",
+    "expected_warning": "missing_headings",
+    "expected_text": "material development"
+  }
+]
