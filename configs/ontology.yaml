@@ -1,34 +1,409 @@
 version: "0.1"
-families:
-  earnings:
-    - revenue_beat
-    - revenue_miss
-    - eps_beat
-    - eps_miss
-    - margin_change
-  guidance:
-    - raised
-    - lowered
-    - initiated
-    - reaffirmed
-    - withdrawn
-  contracts:
-    - awarded
-    - expanded
-    - lost
-    - cancelled
-  capital_allocation:
-    - buyback
-    - dividend_change
-    - debt_issuance
-    - equity_issuance
-  management:
-    - ceo_departure
-    - ceo_appointment
-    - cfo_departure
-    - cfo_appointment
-  corporate_action:
-    - acquisition
-    - divestiture
-    - restructuring
+acceptance:
+  sample_size: 100
+  minimum_family_agreement: 0.80
 
+disagreement_categories:
+  - ambiguous_document
+  - missing_ontology_category
+  - unclear_definition
+  - annotation_error
+  - multiple_valid_events
+
+shared_attributes:
+  certainty:
+    kind: enum
+    description: Strength of evidence that the event occurred or will occur.
+    allowed_values: [confirmed, likely, possible, uncertain, denied]
+  status:
+    kind: enum
+    description: Current lifecycle state of the event at the disclosure time.
+    allowed_values: [announced, planned, pending, effective, completed, cancelled, withdrawn]
+  effective_date:
+    kind: date
+    description: Date on which the disclosed event takes or took effect.
+  economic_direction:
+    kind: enum
+    description: Stated economic direction without inferring a market recommendation.
+    allowed_values: [positive, negative, mixed, neutral, unknown]
+  materiality:
+    kind: enum
+    description: Economic significance supported by the disclosed facts.
+    allowed_values: [immaterial, low, medium, high, unknown]
+  novelty:
+    kind: enum
+    description: Relationship to information available before this disclosure.
+    allowed_values: [new, update, repeated, unknown]
+  time_horizon:
+    kind: enum
+    description: Horizon over which the disclosed economic effect is expected.
+    allowed_values: [immediate, near_term, medium_term, long_term, unknown]
+  affected_financial_channels:
+    kind: string_list
+    description: Financial or operating channels explicitly affected by the event.
+  conditions_remaining:
+    kind: string_list
+    description: Unsatisfied approvals, milestones, or other stated conditions.
+  source_reliability:
+    kind: enum
+    description: Provenance tier of the evidence supporting the annotation.
+    allowed_values: [primary_filing, filed_exhibit, issuer_release, third_party, unknown]
+
+family_attributes:
+  contracts:
+    counterparty:
+      kind: string
+      description: Named customer or other contracting party.
+    value:
+      kind: number
+      description: Disclosed nominal contract value in the stated currency.
+    currency:
+      kind: string
+      description: ISO-style currency code stated for the contract value.
+    duration:
+      kind: string
+      description: Disclosed contract term or duration.
+    government_customer:
+      kind: boolean
+      description: Whether the disclosed customer is a government body.
+    binding_status:
+      kind: enum
+      description: Whether the arrangement is binding at disclosure time.
+      allowed_values: [binding, non_binding, conditional, unknown]
+    revenue_start:
+      kind: date
+      description: Disclosed date on which contract revenue begins.
+    renewal_option:
+      kind: boolean
+      description: Whether the disclosed contract includes a renewal option.
+    percentage_of_trailing_revenue:
+      kind: number
+      description: Contract value divided by trailing revenue when defensibly available.
+
+labels:
+  - event_type: earnings.revenue_beat
+    name: Revenue beat
+    valid_parent: earnings
+    definition: Reported revenue exceeds the explicitly comparable expectation or prior guidance for the same period.
+    inclusion_criteria:
+      - Both reported revenue and a comparable expectation or guidance value are evidenced.
+    exclusion_criteria:
+      - Revenue growth without an evidenced comparison benchmark.
+      - A beat derived only from post-event market commentary.
+    positive_example: Quarterly revenue is $510 million versus company guidance of $480–$500 million.
+    difficult_counterexample: Revenue rises 20 percent year over year but no expectation or guidance comparison is disclosed.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [earnings.revenue_miss]
+
+  - event_type: earnings.revenue_miss
+    name: Revenue miss
+    valid_parent: earnings
+    definition: Reported revenue falls below the explicitly comparable expectation or prior guidance for the same period.
+    inclusion_criteria:
+      - Both reported revenue and a comparable expectation or guidance value are evidenced.
+    exclusion_criteria:
+      - Revenue decline without an evidenced comparison benchmark.
+      - A miss inferred only from subsequent price movement.
+    positive_example: Quarterly revenue is $470 million versus company guidance of $490–$510 million.
+    difficult_counterexample: Revenue declines from last year but remains within the issuer's stated guidance range.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [earnings.revenue_beat]
+
+  - event_type: earnings.eps_beat
+    name: EPS beat
+    valid_parent: earnings
+    definition: Reported earnings per share exceeds the explicitly comparable expectation or prior guidance for the same period and basis.
+    inclusion_criteria:
+      - Reported and comparison EPS use a defensibly comparable GAAP or non-GAAP basis.
+    exclusion_criteria:
+      - Comparing GAAP EPS with an adjusted expectation without reconciliation.
+      - Positive EPS with no expectation benchmark.
+    positive_example: Adjusted EPS is $1.24 versus adjusted guidance of $1.05–$1.15.
+    difficult_counterexample: GAAP EPS exceeds a non-GAAP analyst figure because restructuring costs were excluded from only one measure.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [earnings.eps_miss]
+
+  - event_type: earnings.eps_miss
+    name: EPS miss
+    valid_parent: earnings
+    definition: Reported earnings per share falls below the explicitly comparable expectation or prior guidance for the same period and basis.
+    inclusion_criteria:
+      - Reported and comparison EPS use a defensibly comparable GAAP or non-GAAP basis.
+    exclusion_criteria:
+      - Comparing unlike EPS bases without reconciliation.
+      - Negative EPS with no expectation benchmark.
+    positive_example: GAAP EPS is $0.42 versus prior GAAP guidance of $0.50–$0.55.
+    difficult_counterexample: GAAP EPS misses an adjusted estimate solely because the two figures treat acquisition costs differently.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [earnings.eps_beat]
+
+  - event_type: earnings.margin_change
+    name: Margin change
+    valid_parent: earnings
+    definition: A reported or guided gross, operating, or net margin changes materially from a stated comparison period or prior range.
+    inclusion_criteria:
+      - The margin basis and comparison are identifiable from the evidence.
+    exclusion_criteria:
+      - A cost change with no disclosed or calculable margin effect.
+      - A negligible rounding difference.
+    positive_example: Gross margin contracts to 38 percent from 44 percent because of product mix.
+    difficult_counterexample: Gross profit increases while revenue also increases, but no margin comparison can be established.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: []
+
+  - event_type: guidance.raised
+    name: Guidance raised
+    valid_parent: guidance
+    definition: The issuer increases a previously stated forecast range or point estimate for the same metric and period.
+    inclusion_criteria: [Both old and new comparable guidance are evidenced.]
+    exclusion_criteria:
+      - First-time guidance with no prior comparable forecast.
+      - A change caused only by a reporting-basis revision.
+    positive_example: Full-year revenue guidance increases from $2.0–$2.1 billion to $2.2–$2.3 billion.
+    difficult_counterexample: The issuer introduces adjusted EBITDA guidance after previously guiding only revenue.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [guidance.lowered, guidance.reaffirmed, guidance.withdrawn]
+
+  - event_type: guidance.lowered
+    name: Guidance lowered
+    valid_parent: guidance
+    definition: The issuer decreases a previously stated forecast range or point estimate for the same metric and period.
+    inclusion_criteria: [Both old and new comparable guidance are evidenced.]
+    exclusion_criteria:
+      - First-time guidance with no prior comparable forecast.
+      - Currency translation alone when constant-currency guidance is unchanged.
+    positive_example: Full-year EPS guidance falls from $4.00–$4.20 to $3.40–$3.60.
+    difficult_counterexample: Reported-currency guidance declines while constant-currency guidance is reaffirmed.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [guidance.raised, guidance.reaffirmed, guidance.withdrawn]
+
+  - event_type: guidance.initiated
+    name: Guidance initiated
+    valid_parent: guidance
+    definition: The issuer provides its first explicit forecast for a metric and period not previously guided.
+    inclusion_criteria: [A quantified or bounded forward forecast is newly introduced.]
+    exclusion_criteria:
+      - Qualitative outlook language with no forecast.
+      - Replacing withdrawn guidance for the same period without new scope.
+    positive_example: Management introduces fiscal-year revenue guidance of $900–$930 million.
+    difficult_counterexample: Management says demand should improve next year but provides no measurable forecast.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [guidance.reaffirmed, guidance.withdrawn]
+
+  - event_type: guidance.reaffirmed
+    name: Guidance reaffirmed
+    valid_parent: guidance
+    definition: The issuer explicitly maintains previously stated guidance for the same metric and period.
+    inclusion_criteria: [The disclosure expressly reiterates or maintains prior guidance.]
+    exclusion_criteria:
+      - Silence about prior guidance.
+      - A range whose endpoints changed.
+    positive_example: The company reaffirms full-year adjusted EPS guidance of $3.10–$3.30.
+    difficult_counterexample: The midpoint is unchanged but both endpoints are widened.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [guidance.raised, guidance.lowered, guidance.initiated, guidance.withdrawn]
+
+  - event_type: guidance.withdrawn
+    name: Guidance withdrawn
+    valid_parent: guidance
+    definition: The issuer removes previously issued guidance without supplying a replacement for the same metric and period.
+    inclusion_criteria: [Prior guidance exists and is explicitly suspended or withdrawn.]
+    exclusion_criteria:
+      - Guidance is lowered or replaced with a new range.
+      - Guidance expires because the forecast period ended.
+    positive_example: The company withdraws its fiscal-year outlook because of unresolved regulatory disruption.
+    difficult_counterexample: The company replaces annual guidance with a lower quantified range.
+    required_attributes: [certainty, status, economic_direction, time_horizon, source_reliability]
+    incompatible_labels: [guidance.raised, guidance.lowered, guidance.initiated, guidance.reaffirmed]
+
+  - event_type: contracts.awarded
+    name: Contract awarded
+    valid_parent: contracts
+    definition: A customer awards the issuer a new binding material contract or order.
+    inclusion_criteria: [The evidence identifies an executed or awarded arrangement and its counterparty.]
+    exclusion_criteria:
+      - Preferred-bidder status, memorandum of understanding, or unexercised option.
+      - Routine orders without evidence of materiality.
+    positive_example: The issuer signs a five-year supply agreement with Customer A valued at $120 million.
+    difficult_counterexample: The issuer is selected for exclusive negotiations but no agreement has been executed.
+    required_attributes: [certainty, status, economic_direction, source_reliability, counterparty, binding_status]
+    incompatible_labels: [contracts.lost, contracts.cancelled]
+
+  - event_type: contracts.expanded
+    name: Contract expanded
+    valid_parent: contracts
+    definition: An existing binding contract increases in scope, value, duration, geography, or committed volume.
+    inclusion_criteria: [The prior arrangement and incremental commitment are identifiable.]
+    exclusion_criteria:
+      - An unchanged renewal or optional capacity not yet exercised.
+      - A new unrelated contract with the same customer.
+    positive_example: A customer exercises an option adding $40 million and two years to an existing contract.
+    difficult_counterexample: The issuer announces that discussions are underway to extend the contract.
+    required_attributes: [certainty, status, economic_direction, source_reliability, counterparty, binding_status]
+    incompatible_labels: [contracts.lost, contracts.cancelled]
+
+  - event_type: contracts.lost
+    name: Contract lost
+    valid_parent: contracts
+    definition: A customer selects another supplier or declines to renew an economically relevant issuer contract.
+    inclusion_criteria: [The loss or non-renewal is confirmed and linked to an identifiable counterparty or program.]
+    exclusion_criteria:
+      - A contract naturally completes with no evidence of competitive loss.
+      - Speculation that a customer may leave.
+    positive_example: The agency awards the rebid program to a competitor after the issuer's current term ends.
+    difficult_counterexample: Revenue from a customer declines but no contract decision is disclosed.
+    required_attributes: [certainty, status, economic_direction, source_reliability, counterparty, binding_status]
+    incompatible_labels: [contracts.awarded, contracts.expanded]
+
+  - event_type: contracts.cancelled
+    name: Contract cancelled
+    valid_parent: contracts
+    definition: A previously binding contract is terminated before its planned completion.
+    inclusion_criteria: [Termination of an identifiable existing contract is confirmed.]
+    exclusion_criteria: [Natural expiry, completed delivery, or merely threatened termination.]
+    positive_example: The customer terminates the remaining three years of the supply agreement for convenience.
+    difficult_counterexample: The contract reaches its scheduled expiry and the parties do not discuss renewal.
+    required_attributes: [certainty, status, economic_direction, source_reliability, counterparty, binding_status]
+    incompatible_labels: [contracts.awarded, contracts.expanded]
+
+  - event_type: capital_allocation.buyback
+    name: Buyback
+    valid_parent: capital_allocation
+    definition: The issuer authorizes, expands, executes, or completes a share-repurchase program.
+    inclusion_criteria: [A board authorization or actual repurchase is evidenced.]
+    exclusion_criteria:
+      - Shares withheld solely to cover employee tax obligations.
+      - Discussion of a possible future authorization.
+    positive_example: The board authorizes a new $500 million open-market repurchase program.
+    difficult_counterexample: Management says repurchases may be considered if excess cash remains.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: capital_allocation.dividend_change
+    name: Dividend change
+    valid_parent: capital_allocation
+    definition: The issuer increases, decreases, suspends, resumes, or newly initiates a shareholder dividend.
+    inclusion_criteria: [The per-share amount or dividend policy changes from the prior state.]
+    exclusion_criteria:
+      - A routine declaration at the unchanged recurring amount.
+      - A distribution that is solely a stock split.
+    positive_example: The quarterly dividend increases from $0.20 to $0.25 per share.
+    difficult_counterexample: The board declares the regular $0.20 quarterly dividend on a new payment date.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: capital_allocation.debt_issuance
+    name: Debt issuance
+    valid_parent: capital_allocation
+    definition: The issuer enters, prices, or completes a debt financing that creates or refinances a borrowing obligation.
+    inclusion_criteria: [Principal amount and binding financing status are evidenced.]
+    exclusion_criteria:
+      - A shelf registration with no debt sold.
+      - Routine drawdown under an already disclosed facility unless material.
+    positive_example: The issuer prices $750 million of senior notes due 2032.
+    difficult_counterexample: A universal shelf permits future debt offerings but no notes are issued.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: capital_allocation.equity_issuance
+    name: Equity issuance
+    valid_parent: capital_allocation
+    definition: The issuer sells or commits to sell common equity or equity-linked securities that can increase diluted shares.
+    inclusion_criteria: [A priced, executed, or binding issuance arrangement is evidenced.]
+    exclusion_criteria:
+      - A shelf registration with no securities sold.
+      - Employee equity grants under an existing plan unless separately material.
+    positive_example: The issuer prices a public offering of 12 million common shares.
+    difficult_counterexample: The issuer files an at-the-market prospectus but has not sold any shares.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: management.ceo_departure
+    name: CEO departure
+    valid_parent: management
+    definition: The chief executive officer resigns, retires, is terminated, dies, or otherwise leaves the role.
+    inclusion_criteria: [Departure from the CEO role and its effective timing are evidenced.]
+    exclusion_criteria:
+      - A title change that leaves the person as chief executive.
+      - Unconfirmed departure speculation.
+    positive_example: The CEO resigns effective immediately and leaves the board.
+    difficult_counterexample: The CEO relinquishes the president title but remains chief executive.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: management.ceo_appointment
+    name: CEO appointment
+    valid_parent: management
+    definition: A person is appointed permanent, interim, or acting chief executive officer.
+    inclusion_criteria: [Appointment to the CEO role and effective timing are evidenced.]
+    exclusion_criteria:
+      - Appointment as president without chief executive authority.
+      - A candidate search with no appointment.
+    positive_example: The board appoints the current COO as interim CEO effective immediately.
+    difficult_counterexample: The board names a lead director to oversee the CEO search.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: management.cfo_departure
+    name: CFO departure
+    valid_parent: management
+    definition: The chief financial officer resigns, retires, is terminated, dies, or otherwise leaves the role.
+    inclusion_criteria: [Departure from the CFO role and its effective timing are evidenced.]
+    exclusion_criteria:
+      - A change in secondary title while the person remains CFO.
+      - Unconfirmed departure speculation.
+    positive_example: The CFO retires at quarter-end after a transition period.
+    difficult_counterexample: The CFO gives up the treasurer title but continues as chief financial officer.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: management.cfo_appointment
+    name: CFO appointment
+    valid_parent: management
+    definition: A person is appointed permanent, interim, or acting chief financial officer.
+    inclusion_criteria: [Appointment to the CFO role and effective timing are evidenced.]
+    exclusion_criteria:
+      - Appointment as controller or treasurer without chief financial officer authority.
+      - A search process with no appointment.
+    positive_example: The board appoints the controller as interim CFO effective next week.
+    difficult_counterexample: The company hires a new treasurer who reports to the existing CFO.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: corporate_action.acquisition
+    name: Acquisition
+    valid_parent: corporate_action
+    definition: The issuer agrees to acquire or completes the acquisition of a business, legal entity, or material assets.
+    inclusion_criteria: [A binding acquisition agreement or completed transaction is evidenced.]
+    exclusion_criteria:
+      - Non-binding interest, exploratory talks, or an ordinary-course asset purchase.
+    positive_example: The issuer signs a definitive agreement to acquire TargetCo for $1.2 billion.
+    difficult_counterexample: The issuer submits a preliminary non-binding indication of interest.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: corporate_action.divestiture
+    name: Divestiture
+    valid_parent: corporate_action
+    definition: The issuer agrees to sell, spin off, or completes disposal of a business, legal entity, or material assets.
+    inclusion_criteria: [A binding disposal agreement or completed transaction is evidenced.]
+    exclusion_criteria:
+      - A strategic review with no selected transaction.
+      - An ordinary-course sale of inventory or immaterial equipment.
+    positive_example: The issuer agrees to sell its consumer division for $600 million.
+    difficult_counterexample: Management begins evaluating strategic alternatives for the division.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []
+
+  - event_type: corporate_action.restructuring
+    name: Restructuring
+    valid_parent: corporate_action
+    definition: The issuer adopts or materially expands an operational or financial restructuring program.
+    inclusion_criteria: [A defined program, scope, charge, facility action, or workforce action is evidenced.]
+    exclusion_criteria:
+      - Routine cost discipline with no identifiable restructuring action.
+      - A merger integration already captured solely as acquisition mechanics.
+    positive_example: The company approves a plan to close two plants and reduce its workforce by 12 percent.
+    difficult_counterexample: Management states that it will continue seeking general efficiency improvements.
+    required_attributes: [certainty, status, economic_direction, source_reliability]
+    incompatible_labels: []

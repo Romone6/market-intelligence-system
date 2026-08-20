@@ -4,7 +4,7 @@ An independently trained, point-in-time financial-event research system built fr
 
 ## Status
 
-Stages 0–4 are implemented through the timestamp-disciplined historical knowledge layer. The Stage 5 market/outcome engine is fixture-verified, but its live 100-filing gate remains open because authenticated consolidated daily bars are not configured. Authoritative historical-universe population also remains open. Research and paper operation only; broker and live-trading paths do not exist.
+Stages 0–4 are implemented through the timestamp-disciplined historical knowledge layer. The Stage 5 market/outcome engine is fixture-verified, but its live 100-filing gate remains open because authenticated consolidated daily bars are not configured. Ontology v0.1 and its agreement audit are implemented; the Stage 6 two-human, 100-real-event annotation gate remains open. Authoritative historical-universe population also remains open. Research and paper operation only; broker and live-trading paths do not exist.
 
 ## Install
 
@@ -51,4 +51,4 @@ Generated data, models, and reports are ignored by Git. Commit schemas, configs,
 
 ## Canonical references
 
-Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md), [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md), [Stage 3: Normalization and Evidence Mapping](docs/STAGE_3_NORMALIZATION.md), [Stage 4: Timestamp Discipline and Historical Knowledge](docs/STAGE_4_TIMESTAMP_DISCIPLINE.md), and [Stage 5: Market Data and Outcome Labels](docs/STAGE_5_MARKET_OUTCOMES.md).
+Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md), [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md), [Stage 3: Normalization and Evidence Mapping](docs/STAGE_3_NORMALIZATION.md), [Stage 4: Timestamp Discipline and Historical Knowledge](docs/STAGE_4_TIMESTAMP_DISCIPLINE.md), [Stage 5: Market Data and Outcome Labels](docs/STAGE_5_MARKET_OUTCOMES.md), and [Stage 6: Event Ontology v0.1](docs/STAGE_6_ONTOLOGY.md).
