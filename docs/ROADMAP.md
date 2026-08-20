@@ -9,7 +9,7 @@ The source specification is implemented as independently verifiable stages. Work
 | 2 | SEC ingestion | 50-company Q1 2024 collection and zero-network resume audit preserve 161 filings, 483 source objects, and 3,683 embedded documents without duplicates |
 | 3 | Normalization and evidence mapping | 100 representative documents have deterministic byte-range traceability, typed tables, raw-hash integrity, exhibit links, and explicit parser warnings |
 | 4 | Timestamp discipline and historical knowledge query | 100 filing-evidence records pass exact-boundary and timestamp-order audits; downstream feature replay remains a continuous gate |
-| 5 | Market data and outcome labels | 100 sampled event returns reproduce within tolerance from the correct starting point |
+| 5 | Market data and outcome labels | Engine and 100-fixture reproduction pass; authenticated consolidated bars and the 100-real-filing audit remain open |
 | 6 | Ontology v0.1 and annotation guide | Independent labels have explainable disagreement categories |
 | 7 | Annotation application and gold set | Frozen evaluation set, agreement metrics, class reports, and leakage controls exist |
 | 8 | Non-neural baselines | Frozen baselines run on the same periods as every later model |

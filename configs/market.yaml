@@ -1,0 +1,19 @@
+version: "0.1"
+label_version: daily-outcomes-v0.1
+provider: alpaca
+provider_feed: sip
+provider_key_env: APCA_API_KEY_ID
+provider_secret_env: APCA_API_SECRET_KEY
+bar_adjustments:
+  - raw
+  - all
+broad_market_symbol: SPY
+factor_source: ken_french_us_3_factor_daily
+factor_estimation_sessions: 252
+minimum_factor_observations: 120
+outcome_horizons: [1, 5, 20]
+low_liquidity_average_dollar_volume: 5000000
+extreme_market_move: 0.03
+market_database: data/market/market.sqlite3
+raw_market_root: data/raw/market
+acceptance_sample_size: 100

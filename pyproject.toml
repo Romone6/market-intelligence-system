@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "exchange-calendars>=4.13.2,<5",
+    "numpy>=1.26.4,<3",
     "pydantic>=2.10,<3",
     "PyYAML>=6.0.2,<7",
 ]
@@ -24,6 +25,7 @@ where = ["src"]
 financial_event_model = [
     "identifiers/migrations/*.sql",
     "ingestion/migrations/*.sql",
+    "market/migrations/*.sql",
     "normalization/migrations/*.sql",
     "temporal/migrations/*.sql",
 ]
