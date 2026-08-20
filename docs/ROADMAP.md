@@ -5,7 +5,7 @@ The source specification is implemented as independently verifiable stages. Work
 | Stage | Deliverable | Proof boundary |
 |---:|---|---|
 | 0 | Repository, schemas, configuration, experiment ledger | Install/test commands pass; configs and outputs are versioned |
-| 1 | Point-in-time security master | Filing-date entity, security, ticker, tradability, and membership queries work |
+| 1 | Point-in-time security master | Schema/query verified with fixtures; authoritative historical population and coverage audit remain open |
 | 2 | SEC ingestion | Reproducible 50-company manifest preserves filings, exhibits, amendments, failures, and hashes |
 | 3 | Normalization and evidence mapping | 100 representative documents remain traceable to raw offsets and parsing failures are flagged |
 | 4 | Timestamp discipline and historical knowledge query | 100 sampled events have zero unexplained pre-`tradable_at` violations |
@@ -22,4 +22,3 @@ The source specification is implemented as independently verifiable stages. Work
 | 15 | Autonomous paper loop and separately gated execution | Forward paper evidence passes frozen criteria; live-capital gate remains explicit |
 
 Stage 15 names the broader system goal described in the charter. It extends the supplied MVP roadmap without moving broker integration into the MVP.
-

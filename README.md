@@ -4,7 +4,7 @@ An independently trained, point-in-time financial-event research system built fr
 
 ## Status
 
-Stage 0 foundation. Research and paper operation only. Broker and live-trading paths do not exist.
+Stage 0 foundation and the Stage 1 point-in-time security-master engine are implemented. Historical universe population remains open. Research and paper operation only; broker and live-trading paths do not exist.
 
 ## Install
 
@@ -41,6 +41,7 @@ The ledger stores the parsed configuration itself and its deterministic SHA-256 
 - `data/events/`: extracted event objects and evidence.
 - `data/labels/`: point-in-time outcome labels.
 - `data/market/`: market observations and corporate-action inputs.
+- `data/security_master/`: generated point-in-time entity, security, identifier, and universe database.
 - `models/`: generated checkpoints and calibration artifacts.
 - `reports/`: generated experiment evidence; the local SQLite ledger defaults here.
 - `src/financial_event_model/`: all reusable business logic.
@@ -50,4 +51,4 @@ Generated data, models, and reports are ignored by Git. Commit schemas, configs,
 
 ## Canonical references
 
-Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md).
+Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). The current identity-system boundary is recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md).
