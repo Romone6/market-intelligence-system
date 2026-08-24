@@ -14,7 +14,7 @@ models/checkpoints/**
 !models/checkpoints/.gitkeep
 models/calibration/**
 !models/calibration/.gitkeep
+models/provenance/**
 reports/**
 !reports/.gitkeep
 !reports/README.md
-

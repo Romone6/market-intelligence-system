@@ -1,0 +1,88 @@
+version: "0.1"
+purpose: development_only_event_extraction_probe
+
+data:
+  package_id: stage9-development-v0.1
+  package_hash: f2bacf5138367f9855daeb8b92389060bbaa83e9f603274e80fe8712fb18e88d
+  fit_items: 62
+  validation_items: 16
+  sealed_evaluation_items: 22
+
+runtime_snapshot:
+  python: 3.13.14
+  torch: 2.11.0+cu128
+  cuda: "12.8"
+  transformers: 5.15.0
+  tokenizers: 0.22.2
+  gpu: NVIDIA GeForce RTX 4070 SUPER
+  gpu_vram_mib: 12282
+  gpu_compute_capability: "8.9"
+  cpu: AMD Ryzen 5 7600X 6-Core Processor
+  logical_cpus: 12
+  ram_gib: 31.2
+
+base_encoder:
+  repo_id: answerdotai/ModernBERT-base
+  revision: 8949b909ec900327062f0ebf497f51aef5e6f0c8
+  architecture: encoder_only
+  license: Apache-2.0
+  license_url: https://github.com/AnswerDotAI/ModernBERT/blob/main/LICENSE
+  trust_remote_code: false
+  hidden_size: 768
+  layers: 22
+  attention_heads: 12
+  max_position_embeddings: 8192
+  weights_downloaded: true
+  weights:
+    model.safetensors:
+      bytes: 598635032
+      tensors: 137
+      sha256: 340ac08b74eef0d7bdec2d7981a6a3d4249bf0e6aab60634b72ad02c2b8023a9
+
+tokenizer:
+  revision: 8949b909ec900327062f0ebf497f51aef5e6f0c8
+  use_fast: true
+  max_length: 3072
+  truncation: true
+  return_offsets_mapping: true
+  metadata_sha256:
+    config.json: 1609d59e627c33eaed524b4f01e546d42e84190a079a5a5ded84b212c41c324f
+    special_tokens_map.json: ea97ecdbcc73713039d8d64dbb05e3689495c96657fbd9a18f5bed381be81049
+    tokenizer_config.json: 3cd2017ff46d0a527e5d39cae39272eccfa1f19bb9f89b05d166aab2e38354e2
+    tokenizer.json: 9fd55248d51d33976b324fc11592e28071da7d41e0e9401dfb7082e30574b7b1
+  development_length_scan:
+    records: 78
+    prior_disclosure_nonempty: 0
+    p50: 600
+    p90: 2299
+    p95: 2658
+    maximum: 2916
+    over_3072: 0
+    over_4096: 0
+
+controls:
+  development_only: true
+  evaluation_labels_forbidden_during_tuning: true
+  exact_weights_downloaded: true
+  verify_weights_hash_before_training: true
+  require_character_to_token_alignment_test: true
+  require_one_batch_round_trip_before_probe: true
+
+systems_gate:
+  status: passed
+  tokens: 512
+  labels: 25
+  loss: 0.733343
+  finite_gradient_tensors: 138
+  peak_allocated_vram_mib: 1456.73
+  checkpoint_round_trip_identical: true
+
+linear_probe:
+  version: stage9-linear-probe-v0.2
+  pooling: first_token
+  c: 1.0
+  penalty: l2
+  class_weight: balanced
+  threshold: 0.5
+  random_seed: 17
+  encoder_gradients: false

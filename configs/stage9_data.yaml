@@ -1,0 +1,26 @@
+version: "0.1"
+purpose: development_only_ai_panel_training_package
+
+dataset:
+  release_id: stage7-ai-panel-v0.1
+  content_hash: 6cd6233f32b761dfdf047f58530e9f53d59c621985d624f0459642ffbed114db
+  evidence_kind: ai_panel
+  development_items: 78
+  sealed_evaluation_items: 22
+
+development_split:
+  validation_fraction: 0.20
+  split_seed: stage9-development-v0.1
+  group_by_entity: true
+  group_by_related_event: true
+
+features:
+  include_filing_type: true
+  include_prior_company_disclosure: true
+  exclude_company_identity: true
+  exclude_entity_id: true
+  evidence_offsets: character_start_end
+
+evaluation:
+  labels_read_during_packaging: false
+  tuning_forbidden: true

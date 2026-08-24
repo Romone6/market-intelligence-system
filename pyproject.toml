@@ -20,6 +20,12 @@ financial-event-annotate = "financial_event_model.annotation.app:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3,<10"]
+model = [
+    "scikit-learn>=1.7,<2",
+    "safetensors>=0.6,<1",
+    "torch>=2.11,<2.12",
+    "transformers>=5.0,<6",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
