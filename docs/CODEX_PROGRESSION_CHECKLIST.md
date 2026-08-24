@@ -11,8 +11,8 @@ This is the ordered engineering path from the current Stage 7 implementation to 
 - [x] Stage 4: conservative `tradable_at` policy and historical knowledge query.
 - [x] Stage 5 engine: market-data storage and deterministic 1/5/20-session outcomes.
 - [x] Stage 6 engine: ontology v0.1, strict event validation, and agreement audit.
-- [x] Stage 7 engine: local annotation application, append-only history, leakage-safe releases, and reports.
-- [x] Current repository verification: 96 tests pass and the worktree is clean at Stage 7 commit `dd44607`.
+- [x] Stage 7 development release: local annotation application, append-only history, leakage-safe releases, the real calibration queue, and frozen `stage7-ai-panel-v0.1` release.
+- [x] Current repository verification: 113 tests pass after Stage 8 attribute baselines, Stage 9 packaging, token alignment, and linear-probe operationalization.
 
 Open proof boundaries remain recorded in `docs/ROADMAP.md`; the checked engine boxes do not erase those gates.
 
@@ -20,21 +20,21 @@ Open proof boundaries remain recorded in `docs/ROADMAP.md`; the checked engine b
 
 ### 1. Operationalize the real calibration queue
 
-- [ ] Add a deterministic selector for 100 representative real SEC documents from the accepted ingestion/normalization corpus.
-- [ ] Preserve company, entity, related-event group, publication time, tradable time, filing type, exact section, evidence candidates, and prior disclosure in every task.
-- [ ] Add an import command that idempotently loads those tasks into `data/labels/annotations.sqlite`.
-- [ ] Add per-annotator progress and a genuine queue-complete state to the local application.
-- [ ] Add an agreement/disagreement report command so users do not need to write Python.
-- [ ] Test selection, import, progress, completion, and report generation with fixtures.
-- [ ] Run the real import and report **“calibration queue ready.”**
+- [x] Add a deterministic selector for 100 representative real SEC documents from the accepted ingestion/normalization corpus.
+- [x] Preserve company, entity, related-event group, publication time, tradable time, filing type, exact section, evidence candidates, and prior disclosure in every task.
+- [x] Add an import command that idempotently loads those tasks into `data/labels/annotations.sqlite`.
+- [x] Add per-annotator progress and a genuine queue-complete state to the local application.
+- [x] Add an agreement/disagreement report command so users do not need to write Python.
+- [x] Test selection, import, progress, completion, and report generation with fixtures.
+- [x] Run the real import and report **“calibration queue ready.”**
 
 **Exit:** exactly 100 traceable real tasks are available to both nominated annotators, with no generated label presented as truth.
 
 ### 2. Create the dashboard visual foundation in parallel
 
-- [ ] Receive the user's completed design template and reference material.
-- [ ] Inventory reusable supplied components and licenses before recreating anything.
-- [ ] Freeze a dashboard information hierarchy: overview, holdings, events, risk, model health, and audit activity.
+- [x] Receive the user's initial dark-mode direction and nine component references.
+- [x] Inventory reusable supplied components and source/licence status; record the user's explicit RareUI-use direction.
+- [x] Freeze the initial dashboard information hierarchy and chart/data semantics in `docs/DASHBOARD_DESIGN_BRIEF.md`.
 - [ ] Produce a dark-mode desktop visual prototype using conspicuously marked fixture/paper data.
 - [ ] Review typography, colour, table density, chart treatment, responsive behaviour, keyboard navigation, and contrast with the user.
 - [ ] Implement only the approved shell and shared visual tokens; do not add broker or order routes.
@@ -43,6 +43,8 @@ Open proof boundaries remain recorded in `docs/ROADMAP.md`; the checked engine b
 
 ### 3. Complete the real Stage 6 calibration evidence
 
+**FROZEN 2026-08-21:** preserve this checklist but do not schedule annotation work now. Unfreeze before model finalization, or earlier if the embedding model does not meet its frozen evaluation targets.
+
 - [ ] Wait for two independent 100-document annotation passes.
 - [ ] Freeze both original decision sets before revealing disagreements.
 - [ ] Calculate leaf and family agreement.
@@ -50,7 +52,7 @@ Open proof boundaries remain recorded in `docs/ROADMAP.md`; the checked engine b
 - [ ] Record adjudications without overwriting original annotations.
 - [ ] Revise the ontology under a new version if evidence shows missing or unclear definitions.
 
-**Blocked by:** two nominated annotators and completion of Step 1.
+**Frozen by user:** two nominated annotators are intentionally deferred; the queue and application remain ready.
 
 **Exit:** 100 real events have two independent human labels, threshold agreement, and zero unexplained disagreements.
 
@@ -69,6 +71,8 @@ Open proof boundaries remain recorded in `docs/ROADMAP.md`; the checked engine b
 
 ### 5. Build and freeze the real gold dataset
 
+**FROZEN 2026-08-21:** this remains a mandatory pre-finalization evidence gate, not deleted scope.
+
 - [ ] Generate the 500–1,000-event Round 2 queue after calibration definitions are frozen.
 - [ ] Assign at least 20% to two independent annotators, targeting 30%.
 - [ ] Monitor class coverage and prioritize missing/rare labels without leaking evaluation outcomes.
@@ -81,20 +85,44 @@ Open proof boundaries remain recorded in `docs/ROADMAP.md`; the checked engine b
 
 **Exit:** a genuine human gold release sets `stage_acceptance_passed=true`; fixture evidence cannot satisfy it.
 
+### Frozen human-gold gate before model finalization
+
+- [x] Preserve the 100-document queue, ontology, local application, AI-panel originals, adjudications, canonical records, and frozen non-human release.
+- [ ] Unfreeze this gate before final model approval, or immediately if embedding performance is below the predeclared target.
+- [ ] Nominate two people and freeze two genuinely independent decisions for all 100 calibration documents.
+- [ ] Calculate leaf/family agreement and adjudicate every disagreement without overwriting either original pass.
+- [ ] Revise the ontology under a new version when disagreement evidence demonstrates a missing or unclear definition.
+- [ ] Build a 500–1,000-event Round 2 human queue.
+- [ ] Double-label at least 20% of Round 2, targeting 30%, and adjudicate every observed disagreement.
+- [ ] Freeze task hashes, annotation IDs, and leakage-safe train/evaluation memberships.
+- [ ] Require `evidence_kind="human"`, zero company/related-event leakage, and `stage_acceptance_passed=true` before final model promotion.
+
+**Current development authority:** `stage7-ai-panel-v0.1` may be used for baselines, embedding experiments and failure analysis. It may not be represented as human gold or used to waive the checklist above.
+
 ## Model progression
 
 ### 6. Stage 8: non-neural baselines
 
-- [ ] Freeze time periods, train/evaluation IDs, metrics, and promotion rules before fitting.
-- [ ] Implement majority/frequency, sparse lexical, and structured-feature baselines.
-- [ ] Produce evidence-span, label, calibration, and outcome baselines on the same split used by every later model.
-- [ ] Record every configuration and result in the experiment ledger.
+- [x] Freeze time periods, train/evaluation IDs, metrics, and promotion rules before fitting.
+- [x] Implement majority/frequency, sparse lexical, and filing-type structured baselines.
+- [x] Produce evidence-span, label, and materiality-calibration baselines on the frozen 78/22 split.
+- [x] Record every hypothesis, configuration, result and distilled lesson in the experiment journal and ledger.
+- [ ] Produce unconditional and structured outcome baselines after authenticated consolidated Stage 5 market data exists.
 
-**Exit:** reproducible frozen baselines exist; later learned models must beat them on the same untouched evaluation contract.
+**Current boundary:** extraction baselines are frozen and reproducible. The outcome tranche remains blocked by Stage 5. Learned extraction may begin, but final Stage 8/12 outcome promotion remains open.
+
+**Frozen extraction bars:** exact-set accuracy `> 0.545455`, micro-F1 `> 0.472727`, materiality Brier `< 0.165432`, and evidence F1 `> 0.040225` on the identical evaluation IDs.
 
 ### 7. Stage 9: event extraction model
 
-- [ ] Select open-source encoder starting weights and record exact provenance and license.
+- [x] Freeze a 62/16 group-safe internal fit/validation package from only the 78 development records; keep all 22 evaluation annotations sealed.
+- [x] Exclude company/entity identity from model inputs while retaining it for leakage checks.
+- [x] Preserve deterministic character-level evidence targets and package hashes before tokenizer selection.
+- [x] Select ModernBERT-base and freeze the exact repository revision, tokenizer hashes, Apache-2.0 licence, runtime, hardware, and 3,072-token development boundary.
+- [x] Download the exact frozen safetensors weight snapshot and record its byte count, tensor count, and SHA-256 before training.
+- [x] Convert all 35 development evidence spans to token spans with exact quote checks and whitespace-only tokenizer-boundary trims; zero failures.
+- [x] Pass a 512-token CUDA forward/backward and safetensors checkpoint round-trip systems gate.
+- [x] Train unweighted and balanced frozen-encoder label probes on 62/16 only; retain the balanced micro-F1 0.181818 result as a weak development diagnostic, not a promotion candidate.
 - [ ] Train label, attribute, and evidence-span heads without using evaluation outcomes for tuning.
 - [ ] Compare against all Stage 8 baselines.
 - [ ] Measure probability calibration, robustness by time/company/filing type, and failure cases.
