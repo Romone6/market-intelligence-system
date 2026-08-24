@@ -170,6 +170,41 @@ def test_annotation_rejects_invalid_material_and_no_event_shapes(ontology) -> No
         broken.validate_against(ontology, task)
 
 
+def test_guidance_conflicts_are_scoped_to_the_same_financial_channel(ontology) -> None:
+    task = make_task()
+    shared = {
+        "certainty": "confirmed",
+        "status": "announced",
+        "economic_direction": "neutral",
+        "time_horizon": "medium_term",
+        "source_reliability": "primary_filing",
+    }
+    record = make_record().model_copy(
+        update={
+            "labels": ("guidance.initiated", "guidance.reaffirmed"),
+            "attributes": {
+                "guidance.initiated": shared
+                | {"affected_financial_channels": ["eps"]},
+                "guidance.reaffirmed": shared
+                | {"affected_financial_channels": ["free_cash_flow"]},
+            },
+        }
+    )
+    record.validate_against(ontology, task)
+
+    overlapping = record.model_copy(
+        update={
+            "attributes": record.attributes
+            | {
+                "guidance.reaffirmed": shared
+                | {"affected_financial_channels": ["eps"]}
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="incompatible labels"):
+        overlapping.validate_against(ontology, task)
+
+
 def test_store_is_append_only_and_supersession_is_current(tmp_path: Path, ontology) -> None:
     store = AnnotationStore(tmp_path / "annotations.sqlite", ontology)
     task = make_task()
@@ -362,7 +397,7 @@ def test_post_saves_no_material_annotation_and_wsgi_conforms(
         },
     )
     assert status == "303 See Other"
-    assert headers["Location"].startswith("/?event_id=evt-1&saved=")
+    assert headers["Location"].startswith("/?complete=1&saved=")
     assert store.current_annotations("evt-1")[0].no_material_event is True
 
 
@@ -422,6 +457,41 @@ def test_successful_post_advances_to_next_unannotated_task(
     )
     assert status == "303 See Other"
     assert headers["Location"].startswith("/?event_id=evt-2&saved=")
+
+
+def test_store_progress_and_finished_queue_page(
+    tmp_path: Path, ontology, policy: AnnotationPolicy
+) -> None:
+    store = AnnotationStore(tmp_path / "annotations.sqlite", ontology)
+    store.add_tasks((make_task("evt-1"),))
+    assert store.annotation_progress("human-a").model_dump() == {
+        "annotator_id": "human-a",
+        "total": 1,
+        "completed": 0,
+        "remaining": 1,
+    }
+    app = AnnotationApp(store, ontology, policy, csrf_token="test-token")
+    status, headers, _ = invoke_app(
+        app,
+        method="POST",
+        path="/annotations",
+        form={
+            "csrf_token": "test-token",
+            "event_id": "evt-1",
+            "annotator_id": "human-a",
+            "confidence": "0.85",
+            "no_material_event": "on",
+            "adjudication_status": "submitted",
+        },
+    )
+    assert status == "303 See Other"
+    assert headers["Location"].startswith("/?complete=1&saved=")
+
+    status, _, body = invoke_app(app, query="complete=1&annotator_id=human-a")
+    assert status == "200 OK"
+    assert "Calibration pass complete" in body
+    assert "1 of 1 documents" in body
+    assert store.annotation_progress("human-a").remaining == 0
 
 
 def make_release_records(

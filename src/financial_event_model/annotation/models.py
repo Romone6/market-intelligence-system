@@ -114,6 +114,15 @@ class AnnotationRecord(Contract):
         for label_name in self.labels:
             label = ontology.label(label_name)
             conflicts = selected.intersection(label.incompatible_labels)
+            conflicts = {
+                conflict
+                for conflict in conflicts
+                if not _disjoint_guidance_channels(
+                    label_name,
+                    conflict,
+                    self.attributes,
+                )
+            }
             if conflicts:
                 raise ValueError(
                     f"incompatible labels selected for {label_name}: {sorted(conflicts)}"
@@ -124,6 +133,18 @@ class AnnotationRecord(Contract):
                 raise ValueError("annotation evidence exceeds relevant section")
             if task.relevant_section[span.start : span.end] != span.text:
                 raise ValueError("annotation evidence text does not match relevant section")
+
+
+def _disjoint_guidance_channels(
+    left: str,
+    right: str,
+    attributes: dict[str, dict[str, object]],
+) -> bool:
+    if not left.startswith("guidance.") or not right.startswith("guidance."):
+        return False
+    left_channels = set(attributes[left].get("affected_financial_channels", ()))
+    right_channels = set(attributes[right].get("affected_financial_channels", ()))
+    return bool(left_channels and right_channels and left_channels.isdisjoint(right_channels))
 
 
 class AnnotationRoundPolicy(Contract):
@@ -155,6 +176,19 @@ class AnnotationPolicy(Contract):
     split_seed: str = Field(min_length=1)
     rare_label_threshold: int = Field(ge=1)
     rounds: AnnotationRoundPolicy
+
+
+class AnnotationProgress(Contract):
+    annotator_id: str = Field(min_length=1)
+    total: int = Field(ge=0)
+    completed: int = Field(ge=0)
+    remaining: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def validate_counts(self) -> Self:
+        if self.completed + self.remaining != self.total:
+            raise ValueError("completed and remaining must equal total")
+        return self
 
 
 def load_annotation_policy(path: str | Path) -> AnnotationPolicy:

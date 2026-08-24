@@ -38,7 +38,7 @@ class LeakageReport(Contract):
 class DatasetRelease(Contract):
     release_id: str = Field(min_length=1)
     content_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
-    evidence_kind: Literal["fixture", "human"]
+    evidence_kind: Literal["fixture", "ai_panel", "human"]
     ontology_version: str = Field(min_length=1)
     ontology_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     policy_version: str = Field(min_length=1)
@@ -64,6 +64,16 @@ class DatasetRelease(Contract):
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
+
+
+def task_content_hash(task: AnnotationTask) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            task.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
 
 
 def _signature(record: AnnotationRecord) -> tuple[str, ...]:
@@ -192,11 +202,17 @@ class _Components:
         self.parent[high] = low
 
 
-def _split_events(
+def split_event_ids(
     tasks: dict[str, AnnotationTask],
     event_ids: tuple[str, ...],
-    policy: AnnotationPolicy,
+    *,
+    evaluation_fraction: float,
+    split_seed: str,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    if not 0 < evaluation_fraction < 1:
+        raise ValueError("evaluation_fraction must be between zero and one")
+    if not split_seed:
+        raise ValueError("split_seed is required")
     components = _Components(event_ids)
     by_entity: dict[str, str] = {}
     by_related: dict[str, str] = {}
@@ -214,10 +230,10 @@ def _split_events(
     ranked = sorted(
         (tuple(sorted(ids)) for ids in grouped.values()),
         key=lambda ids: hashlib.sha256(
-            f"{policy.split_seed}:{'|'.join(ids)}".encode()
+            f"{split_seed}:{'|'.join(ids)}".encode()
         ).hexdigest(),
     )
-    target = max(1, round(len(event_ids) * policy.evaluation_fraction))
+    target = max(1, round(len(event_ids) * evaluation_fraction))
     evaluation: list[str] = []
     for group in ranked:
         if len(evaluation) >= target:
@@ -229,7 +245,7 @@ def _split_events(
     return train_ids, eval_ids
 
 
-def _leakage_report(
+def leakage_report(
     tasks: dict[str, AnnotationTask],
     train_ids: tuple[str, ...],
     eval_ids: tuple[str, ...],
@@ -262,10 +278,10 @@ def build_dataset_release(
     policy: AnnotationPolicy,
     *,
     release_id: str,
-    evidence_kind: Literal["fixture", "human"],
+    evidence_kind: Literal["fixture", "ai_panel", "human"],
 ) -> DatasetRelease:
-    if evidence_kind not in {"fixture", "human"}:
-        raise ValueError("evidence_kind must be fixture or human")
+    if evidence_kind not in {"fixture", "ai_panel", "human"}:
+        raise ValueError("evidence_kind must be fixture, ai_panel, or human")
     task_by_id = {task.event_id: task for task in tasks}
     if len(task_by_id) != len(tasks):
         raise ValueError("annotation task event IDs must be unique")
@@ -273,8 +289,13 @@ def build_dataset_release(
     if not resolved:
         raise ValueError("at least one resolved annotation is required")
     event_ids = tuple(sorted(resolved))
-    train_ids, eval_ids = _split_events(task_by_id, event_ids, policy)
-    leakage = _leakage_report(task_by_id, train_ids, eval_ids)
+    train_ids, eval_ids = split_event_ids(
+        task_by_id,
+        event_ids,
+        evaluation_fraction=policy.evaluation_fraction,
+        split_seed=policy.split_seed,
+    )
+    leakage = leakage_report(task_by_id, train_ids, eval_ids)
 
     counts: Counter[str] = Counter()
     for record in resolved.values():
@@ -317,13 +338,7 @@ def build_dataset_release(
         event_id: resolved[event_id].annotation_id for event_id in event_ids
     }
     task_hashes = {
-        event_id: hashlib.sha256(
-            json.dumps(
-                task_by_id[event_id].model_dump(mode="json"),
-                sort_keys=True,
-                separators=(",", ":"),
-            ).encode()
-        ).hexdigest()
+        event_id: task_content_hash(task_by_id[event_id])
         for event_id in event_ids
     }
     ontology_hash = hashlib.sha256(

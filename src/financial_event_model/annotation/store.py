@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Iterator
 from financial_event_model.contracts import Contract
 from financial_event_model.ontology import OntologyDefinition
 
-from .models import AnnotationRecord, AnnotationTask
+from .models import AnnotationProgress, AnnotationRecord, AnnotationTask
 
 if TYPE_CHECKING:
     from .dataset import DatasetRelease
@@ -195,6 +195,37 @@ class AnnotationStore:
                 (annotator_id,),
             ).fetchone()
         return None if row is None else AnnotationTask.model_validate_json(row["payload_json"])
+
+    def annotation_progress(self, annotator_id: str) -> AnnotationProgress:
+        annotator_id = annotator_id.strip()
+        if not annotator_id:
+            raise ValueError("annotator_id is required")
+        with self._connection() as connection:
+            row = connection.execute(
+                """
+                SELECT COUNT(*) AS total,
+                       SUM(CASE WHEN EXISTS (
+                           SELECT 1
+                           FROM annotations AS current
+                           WHERE current.event_id = task.event_id
+                             AND current.annotator_id = ?
+                             AND NOT EXISTS (
+                                 SELECT 1 FROM annotations AS newer
+                                 WHERE newer.supersedes_annotation_id = current.annotation_id
+                             )
+                       ) THEN 1 ELSE 0 END) AS completed
+                FROM annotation_tasks AS task
+                """,
+                (annotator_id,),
+            ).fetchone()
+        total = int(row["total"])
+        completed = int(row["completed"] or 0)
+        return AnnotationProgress(
+            annotator_id=annotator_id,
+            total=total,
+            completed=completed,
+            remaining=total - completed,
+        )
 
     def freeze_release(self, release: DatasetRelease) -> None:
         existing = self.get_release(release.release_id)

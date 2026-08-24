@@ -23,6 +23,7 @@ from .models import (
     load_annotation_policy,
 )
 from .store import AnnotationStore
+from .calibration import calibration_agreement, prepare_calibration
 
 
 StartResponse = Callable[[str, list[tuple[str, str]]], object]
@@ -55,6 +56,12 @@ class AnnotationApp:
         query = parse_qs(str(environ.get("QUERY_STRING", "")), keep_blank_values=True)
         event_id = query.get("event_id", [None])[0]
         annotator_id = query.get("annotator_id", [""])[0]
+        if "complete" in query and annotator_id:
+            return self._respond(
+                start_response,
+                "200 OK",
+                self._render_completion(annotator_id, saved="saved" in query),
+            )
         task = self.store.get_task(event_id) if event_id else None
         if event_id and task is None:
             return self._respond(
@@ -63,8 +70,17 @@ class AnnotationApp:
                 self._page("Unknown annotation task", '<p role="alert">Unknown event ID.</p>'),
             )
         if task is None:
-            tasks = self.store.list_tasks()
-            task = tasks[0] if tasks else None
+            if annotator_id:
+                task = self.store.next_unannotated_task(annotator_id)
+                if task is None and self.store.list_tasks():
+                    return self._respond(
+                        start_response,
+                        "200 OK",
+                        self._render_completion(annotator_id),
+                    )
+            else:
+                tasks = self.store.list_tasks()
+                task = tasks[0] if tasks else None
         if task is None:
             return self._respond(
                 start_response,
@@ -135,11 +151,16 @@ class AnnotationApp:
                 ),
             )
         next_task = self.store.next_unannotated_task(record.annotator_id)
-        destination = next_task.event_id if next_task is not None else event_id
-        location = (
-            f"/?event_id={quote(destination)}&saved={quote(record.annotation_id)}"
-            f"&annotator_id={quote(record.annotator_id)}"
-        )
+        if next_task is None:
+            location = (
+                f"/?complete=1&saved={quote(record.annotation_id)}"
+                f"&annotator_id={quote(record.annotator_id)}"
+            )
+        else:
+            location = (
+                f"/?event_id={quote(next_task.event_id)}&saved={quote(record.annotation_id)}"
+                f"&annotator_id={quote(record.annotator_id)}"
+            )
         return self._respond(
             start_response,
             "303 See Other",
@@ -245,11 +266,20 @@ class AnnotationApp:
                 f'the annotation.</strong><p>{html.escape(error)}</p></div>'
             )
         prior = task.prior_company_disclosure or "No prior disclosure supplied."
+        if annotator_id:
+            progress = self.store.annotation_progress(annotator_id)
+            progress_text = (
+                f'<p class="progress"><strong>{progress.completed} of {progress.total}</strong> '
+                "documents completed for this annotator.</p>"
+            )
+        else:
+            progress_text = '<p class="progress">Enter a stable annotator ID to track progress.</p>'
         content = f"""
 <a class="skip" href="#annotation-form">Skip to annotation form</a>
 <header><p class="eyebrow">Stage 7 · {html.escape(task.annotation_round.value)}</p><h1>Event annotation</h1><p class="lede">Evidence-led labeling against ontology {html.escape(self.ontology.version)}.</p></header>
 <main>
 {alert}
+{progress_text}
 <section class="document" aria-labelledby="document-heading">
   <div class="section-heading"><div><p class="eyebrow">Source document</p><h2 id="document-heading">{html.escape(task.company)}</h2></div><span class="filing">{html.escape(task.filing_type)}</span></div>
   <dl class="metadata"><div><dt>Publication</dt><dd><time>{html.escape(task.source_published_at.isoformat())}</time></dd></div><div><dt>Tradable</dt><dd><time>{html.escape(task.tradable_at.isoformat())}</time></dd></div><div><dt>Event ID</dt><dd><code>{html.escape(task.event_id)}</code></dd></div></dl>
@@ -275,6 +305,15 @@ class AnnotationApp:
 </main>
 """
         return self._page(f"Annotate {task.company}", content)
+
+    def _render_completion(self, annotator_id: str, *, saved: bool = False) -> str:
+        progress = self.store.annotation_progress(annotator_id)
+        alert = '<p class="success" role="status">Final annotation saved.</p>' if saved else ""
+        content = f"""
+<header><p class="eyebrow">Stage 7 · calibration</p><h1>Calibration pass complete</h1><p class="lede">Independent annotation pass recorded locally.</p></header>
+<main>{alert}<section class="document"><h2>{html.escape(annotator_id)}</h2><p><strong>{progress.completed} of {progress.total} documents</strong> completed.</p><p>Do not reconcile labels with the other annotator yet. Run the agreement report only after both independent passes are complete.</p></section></main>
+"""
+        return self._page("Calibration complete", content)
 
     def _page(self, title: str, content: str) -> str:
         return f"""<!doctype html>
@@ -382,13 +421,56 @@ def serve(database: Path, ontology_path: Path, policy_path: Path) -> None:
             print("Annotation app stopped.")
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the local annotation application")
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Prepare, run, and audit annotation rounds")
+    parser.add_argument(
+        "command",
+        nargs="?",
+        choices=("serve", "prepare-calibration", "status", "agreement"),
+        default="serve",
+    )
     parser.add_argument("--database", type=Path, default=Path("data/labels/annotations.sqlite"))
     parser.add_argument("--ontology", type=Path, default=Path("configs/ontology.yaml"))
     parser.add_argument("--policy", type=Path, default=Path("configs/annotation.yaml"))
-    args = parser.parse_args()
-    serve(args.database, args.ontology, args.policy)
+    parser.add_argument("--sec-manifest", type=Path, default=Path("data/raw/sec_manifest.sqlite3"))
+    parser.add_argument(
+        "--normalization-manifest",
+        type=Path,
+        default=Path("data/normalized/normalization_manifest.sqlite3"),
+    )
+    parser.add_argument("--knowledge-store", type=Path, default=Path("data/events/knowledge.sqlite3"))
+    parser.add_argument("--expected-documents", type=int)
+    parser.add_argument("--annotator-id")
+    parser.add_argument("--annotator-a")
+    parser.add_argument("--annotator-b")
+    args = parser.parse_args(argv)
+
+    if args.command == "serve":
+        serve(args.database, args.ontology, args.policy)
+        return
+    ontology = load_ontology(args.ontology)
+    policy = load_annotation_policy(args.policy)
+    store = AnnotationStore(args.database, ontology)
+    if args.command == "prepare-calibration":
+        expected = args.expected_documents or policy.rounds.calibration_documents
+        result = prepare_calibration(
+            store,
+            sec_manifest_path=args.sec_manifest,
+            normalization_manifest_path=args.normalization_manifest,
+            knowledge_store_path=args.knowledge_store,
+            expected_documents=expected,
+        )
+        print(result.model_dump_json(indent=2))
+        return
+    if args.command == "status":
+        if not args.annotator_id:
+            parser.error("status requires --annotator-id")
+        print(store.annotation_progress(args.annotator_id).model_dump_json(indent=2))
+        return
+    if not args.annotator_a or not args.annotator_b:
+        parser.error("agreement requires --annotator-a and --annotator-b")
+    report = calibration_agreement(store, args.annotator_a, args.annotator_b)
+    print(report.model_dump_json(indent=2))
 
 
 if __name__ == "__main__":
