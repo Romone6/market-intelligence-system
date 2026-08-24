@@ -1,0 +1,74 @@
+version: "0.1"
+purpose: development_only_ai_panel_baselines
+
+dataset:
+  release_id: stage7-ai-panel-v0.1
+  content_hash: 6cd6233f32b761dfdf047f58530e9f53d59c621985d624f0459642ffbed114db
+  evidence_kind: ai_panel
+  ontology_version: "0.1"
+  policy_version: "0.1"
+  train_items: 78
+  evaluation_items: 22
+  source_period_utc:
+    start: "2024-01-02T13:00:35+00:00"
+    end: "2024-03-28T12:30:39+00:00"
+  require_zero_entity_leakage: true
+  require_zero_related_event_leakage: true
+  evaluation_tuning_forbidden: true
+
+target:
+  representation: exact_label_set
+  no_event_label: no_material_event
+
+baselines:
+  global_frequency:
+    prediction: most_frequent_train_label_set
+    material_probability: empirical_train_material_rate
+  filing_type_frequency:
+    prediction: most_frequent_train_label_set_within_filing_type
+    unseen_filing_type_fallback: global_frequency
+    material_probability: empirical_train_material_rate_within_filing_type
+  lexical_naive_bayes:
+    prediction: multinomial_label_set_class
+    tokenizer: lowercase_ascii_alphanumeric
+    minimum_token_length: 2
+    laplace_alpha: 1.0
+  candidate_evidence:
+    prediction: all_task_candidate_evidence_when_material_is_predicted
+  label_conditional_attribute_frequency:
+    prediction: most_frequent_train_value_by_label_and_attribute
+    label_input: canonical_label_for_attribute_only_evaluation
+    tie_break: lexicographically_smallest_canonical_json
+
+metrics:
+  labels:
+    - exact_set_accuracy
+    - micro_precision
+    - micro_recall
+    - micro_f1
+  materiality_calibration:
+    - brier_score
+    - expected_calibration_error_5_bins
+  evidence:
+    - character_overlap_precision
+    - character_overlap_recall
+    - character_overlap_f1
+  attributes:
+    - material_record_exact_accuracy
+    - attribute_cell_precision
+    - attribute_cell_recall
+    - attribute_cell_f1
+  outcomes:
+    status: unavailable
+    blocker: authenticated_consolidated_stage5_market_data
+
+promotion:
+  require_same_release_and_split: true
+  require_micro_f1_above_best_stage8_baseline: true
+  require_exact_set_accuracy_above_best_stage8_baseline: true
+  require_evidence_f1_above_candidate_evidence_baseline: true
+  require_brier_below_best_stage8_baseline: true
+  require_attribute_cell_f1_above_stage8_baseline: true
+  require_attribute_record_accuracy_above_stage8_baseline: true
+  require_human_gold_before_final_model_approval: true
+  allow_evaluation_tuning: false
