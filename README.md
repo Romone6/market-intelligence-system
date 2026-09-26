@@ -1,5 +1,7 @@
 # Autonomous Market Intelligence & Decision System
 
+> **Status: research-stage.** The system is under active development and currently operates only as a research/paper system. It is not a production trading system and has no live-order capability.
+
 An independently trained, point-in-time financial intelligence system designed to learn how corporate events translate into market outcomes.
 
 The long-term objective is a complete research-to-decision architecture: ingest new information, represent events, retrieve economically comparable historical analogues, estimate calibrated outcome distributions, quantify uncertainty, abstain when evidence is weak, and eventually support a separately gated execution layer.
