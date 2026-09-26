@@ -8,9 +8,36 @@ The long-term objective is a complete research-to-decision architecture: ingest 
 
 This is not a prompt wrapper that asks an LLM what to buy or sell. The system owns its data contracts, labels, evaluation, calibration, replay logic, and decision boundaries.
 
-> Repository/package names still use `financial_event_model` internally while the project is being renamed. The codebase-wide rename will happen separately to avoid breaking imports, tests, and documentation links.
+The repository is named `market-intelligence-system`; the internal Python package remains `financial_event_model` while a package rename is evaluated separately for compatibility.
 
 ## System architecture
+
+The diagram separates the implemented research foundation from planned stages. The live execution branch is gated and disabled.
+
+```mermaid
+flowchart TD
+    A["SEC disclosures + market data"] --> B["Point-in-time knowledge + provenance"]
+    B --> C["Normalisation + evidence mapping"]
+    C --> D["Event extraction + representation"]
+    D --> E["Historical analogue retrieval"]
+    E --> F["Novelty / materiality / expectations"]
+    F --> G["Calibrated outcome distributions"]
+    G --> H["Uncertainty + abstention"]
+    H --> I["Paper decisions"]
+    I --> J["Evaluation + research loop"]
+    J --> B
+    J -. "separate gate; disabled" .-> K["Live execution"]
+```
+
+### Current implementation vs planned
+
+| Area | Status |
+| --- | --- |
+| Point-in-time security master, SEC ingestion, normalisation, provenance, evidence mapping, timestamp discipline | Implemented foundations |
+| Market-outcome engine, 25-label event ontology, annotation workflow, frozen baselines, event-extraction development | Implemented / in development |
+| Learned event extraction, embeddings and analogue retrieval, novelty and expectations modelling | Planned research stages |
+| Calibrated distributions, uncertainty, abstention, autonomous paper loop | Planned research stages |
+| Broker integration and live execution | Disabled; separately gated and outside the current operating boundary |
 
 The project is being built as an end-to-end research stack:
 
