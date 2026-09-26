@@ -1,54 +1,103 @@
-# Financial Event Model
+# Autonomous Market Intelligence & Decision System
 
-An independently trained, point-in-time financial-event research system built from open-source components. This repository is not a generative trading wrapper. Its learned components must produce traceable event representations, calibrated outcome distributions, uncertainty, and abstention under the rules in the [project charter](docs/PROJECT_CHARTER.md).
+An independently trained, point-in-time financial intelligence system designed to learn how corporate events translate into market outcomes.
 
-## Status
+The long-term objective is a complete research-to-decision architecture: ingest new information, represent events, retrieve economically comparable historical analogues, estimate calibrated outcome distributions, quantify uncertainty, abstain when evidence is weak, and eventually support a separately gated execution layer.
 
-Stages 0–4 are implemented through the timestamp-disciplined historical knowledge layer. The Stage 5 market/outcome engine is fixture-verified, but its live 100-filing gate remains open because authenticated consolidated daily bars are not configured. Ontology v0.1, the real 100-document AI-panel calibration, Stage 7 release `stage7-ai-panel-v0.1`, frozen Stage 8 label/calibration/evidence/attribute baselines, and the sealed 62/16 Stage 9 development package are implemented. ModernBERT-base provenance, exact weights hash, tokenizer alignment, CUDA systems proof, and a weak development-only linear probe are complete; encoder fine-tuning has not started. The 22 evaluation annotations remain forbidden for tuning. The Stage 8 outcome tranche remains blocked by Stage 5. The two-human calibration and 500–1,000-event human-gold release are explicitly frozen until pre-finalization, or earlier if embedding performance misses its frozen target; the AI-panel release is never represented as human gold. Authoritative historical-universe population also remains open. Research and paper operation only; broker and live-trading paths do not exist.
+This is not a prompt wrapper that asks an LLM what to buy or sell. The system owns its data contracts, labels, evaluation, calibration, replay logic, and decision boundaries.
 
-## Install
+> Repository/package names still use `financial_event_model` internally while the project is being renamed. The codebase-wide rename will happen separately to avoid breaking imports, tests, and documentation links.
 
-```powershell
+## System architecture
+
+The project is being built as an end-to-end research stack:
+
+1. **Point-in-time security universe**  
+   Reconstruct which securities and identifiers were valid at each historical point rather than applying today's universe retrospectively.
+
+2. **Corporate disclosure ingestion**  
+   Collect filings and source material while preserving publication, observation, processing, and content-hash provenance.
+
+3. **Deterministic normalization and evidence mapping**  
+   Convert heterogeneous disclosures into structured representations while retaining byte-level links back to source evidence.
+
+4. **Historical knowledge discipline**  
+   Enforce conservative tradability timestamps so historical replay cannot use information that was not yet available.
+
+5. **Market outcomes**  
+   Connect events to subsequent market behaviour and abnormal-return labels across multiple horizons.
+
+6. **Event ontology and extraction**  
+   Learn structured representations of earnings, guidance, contracts, capital allocation, management changes, and corporate actions.
+
+7. **Historical analogue retrieval**  
+   Retrieve prior events that are genuinely comparable economically and temporally.
+
+8. **Novelty, expectations, and materiality**  
+   Distinguish routine information from events that meaningfully change the information set.
+
+9. **Outcome-distribution modelling**  
+   Estimate calibrated probabilities and return distributions rather than point predictions or unexplained trade calls.
+
+10. **Uncertainty and abstention**  
+    Reject cases with weak analogues, missing data, out-of-distribution inputs, or insufficient expected edge.
+
+11. **Autonomous research loop**  
+    Continuously ingest, validate, train, evaluate, calibrate, and generate paper decisions against frozen promotion criteria.
+
+12. **Separately gated execution**  
+    Live execution remains disabled unless research performance, risk, liquidity, exposure, reconciliation, audit, and kill-switch requirements are explicitly satisfied.
+
+## Current research status
+
+The repository already contains the implemented foundations for:
+
+- repository/configuration and experiment provenance
+- point-in-time security-master infrastructure
+- SEC disclosure ingestion
+- deterministic document normalization
+- evidence mapping and timestamp discipline
+- market-outcome engine and fixture validation
+- corporate-event ontology
+- annotation workflow and frozen development release
+- non-neural baselines
+- event-extraction development package
+
+The next major research stages are learned event extraction, event embeddings and analogue retrieval, novelty/expectations modelling, calibrated outcome alignment, uncertainty/abstention, and the autonomous paper loop.
+
+## Research rules
+
+The project is deliberately built around constraints that prevent attractive but invalid results:
+
+- no current-universe survivorship leakage
+- no feature may enter replay before its conservative `tradable_at` time
+- raw evidence, normalized documents, events, labels, market data, models, and reports remain separate
+- evaluation is split by time and audited for company/related-event leakage
+- learned models must beat simple baselines
+- predictions are distributions with evidence and uncertainty
+- abstention is a first-class output
+- final holdouts remain sealed from iterative tuning
+- every experiment records its complete configuration and model version
+
+## Engineering
+
+- Python 3.11+
+- reproducible configuration under `configs/`
+- reusable logic under `src/financial_event_model/`
+- deterministic experiment ledger
+- automated tests and stage-specific acceptance gates
+- generated datasets/checkpoints kept out of version control by default
+
+## Run
+
+```bash
 python -m pip install -e ".[dev]"
-```
-
-## Test
-
-```powershell
 python -m pytest
 ```
 
-## Record an experiment
-
-```python
-from financial_event_model.experiments import ExperimentStore
-
-store = ExperimentStore("reports/experiments.sqlite3")
-record = store.record(
-    ["configs/universe.yaml", "configs/ontology.yaml", "configs/training.yaml"],
-    model_version="baseline-v0.1",
-)
-print(record.run_id, record.config_hash)
-```
-
-The ledger stores the parsed configuration itself and its deterministic SHA-256 digest, so later edits cannot rewrite what a run used.
-
-## Repository boundaries
-
-- `configs/`: versioned universe, ontology, and training policy.
-- `data/raw/`: immutable downloaded source objects.
-- `data/normalized/`: deterministic parsed representations.
-- `data/events/`: extracted event objects and evidence.
-- `data/labels/`: generated event annotations and point-in-time outcome labels.
-- `data/market/`: market observations and corporate-action inputs.
-- `data/security_master/`: generated point-in-time entity, security, identifier, and universe database.
-- `models/`: generated checkpoints and calibration artifacts.
-- `reports/`: generated experiment evidence; the local SQLite ledger defaults here.
-- `src/financial_event_model/`: all reusable business logic.
-- `notebooks/`: disposable analysis clients; no authoritative logic.
-
-Generated data, models, and reports are ignored by Git. Commit schemas, configs, manifests, tests, and documentation—not irreplaceable runtime artifacts.
-
 ## Canonical references
 
-Read [the project charter](docs/PROJECT_CHARTER.md) before changing scope or proof claims, then follow the staged [development roadmap](docs/ROADMAP.md). Current responsibilities are separated into the [user manual-input checklist](docs/USER_MANUAL_INPUT_CHECKLIST.md) and [Codex progression checklist](docs/CODEX_PROGRESSION_CHECKLIST.md). Current proof boundaries are recorded in [Stage 1: Point-in-Time Security Master](docs/STAGE_1_SECURITY_MASTER.md), [Stage 2: SEC Ingestion](docs/STAGE_2_SEC_INGESTION.md), [Stage 3: Normalization and Evidence Mapping](docs/STAGE_3_NORMALIZATION.md), [Stage 4: Timestamp Discipline and Historical Knowledge](docs/STAGE_4_TIMESTAMP_DISCIPLINE.md), [Stage 5: Market Data and Outcome Labels](docs/STAGE_5_MARKET_OUTCOMES.md), [Stage 6: Event Ontology v0.1](docs/STAGE_6_ONTOLOGY.md), [Stage 7: Annotation Application and Gold-Set Controls](docs/STAGE_7_ANNOTATION.md), [Stage 8: Frozen Non-Neural Baselines](docs/STAGE_8_BASELINES.md), and [Stage 9: Event Extraction Model](docs/STAGE_9_EVENT_EXTRACTION.md).
+- [Project charter](docs/PROJECT_CHARTER.md)
+- [Development roadmap](docs/ROADMAP.md)
+
+The project is currently research/paper only. Broker integration and live trading are intentionally outside the present operating boundary.
